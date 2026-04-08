@@ -622,17 +622,18 @@
     .modal-gallery {
       position: relative;
       width: 100%;
-      height: 400px;
+      max-height: 70vh;
       background: var(--dark);
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-
-    @media (max-width: 640px) { .modal-gallery { height: 260px; } }
 
     .modal-gallery img:not(.watermark) {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
+      max-height: 70vh;
+      object-fit: contain;
       display: none;
     }
 
