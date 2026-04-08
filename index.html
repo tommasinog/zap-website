@@ -1,0 +1,2751 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZAP! – Autá ktoré vás zapnú</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --teal:    #2a7d8f;
+      --teal-dk: #1d5f6e;
+      --orange:  #e8681a;
+      --orange-dk:#c4520e;
+      --cream:   #f0e4bb;
+      --cream-dk:#e2d09a;
+      --dark:    #1e1e1e;
+      --white:   #fffdf5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--cream);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, #00000010 1px, transparent 1px);
+      background-size: 18px 18px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--dark);
+      border-bottom: 4px solid var(--orange);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 70px;
+      box-shadow: 0 4px 0 var(--dark);
+    }
+
+    nav .logo-wrap img {
+      height: 52px;
+      filter: drop-shadow(0 0 10px var(--orange)) drop-shadow(0 0 20px rgba(232,104,26,.4));
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    nav ul a {
+      font-family: 'Bangers', cursive;
+      font-size: 1.3rem;
+      letter-spacing: 1px;
+      color: var(--cream);
+      text-decoration: none;
+      text-shadow: none;
+      transition: color .15s;
+    }
+
+    nav ul a:hover { color: var(--orange); }
+
+    nav .nav-cta {
+      background: var(--orange);
+      color: var(--white) !important;
+      padding: .35rem 1.1rem;
+      border: 3px solid var(--dark);
+      border-radius: 6px;
+      box-shadow: 3px 3px 0 var(--dark);
+      transition: transform .1s, box-shadow .1s;
+    }
+
+    nav .nav-cta:hover {
+      transform: translate(-2px,-2px);
+      box-shadow: 5px 5px 0 var(--dark);
+      color: var(--white) !important;
+    }
+
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 6px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 28px;
+      height: 3px;
+      background: var(--cream);
+      border-radius: 2px;
+      transition: .3s;
+    }
+
+    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 6px); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -6px); }
+
+    /* ── MOBILE MENU ── */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 74px;
+      left: 0; right: 0;
+      background: var(--teal-dk);
+      border-bottom: 4px solid var(--dark);
+      z-index: 99;
+      flex-direction: column;
+      padding: 1rem 2rem;
+      gap: .8rem;
+      box-shadow: 0 6px 0 var(--dark);
+    }
+
+    .mobile-menu.open { display: flex; }
+
+    .mobile-menu a {
+      font-family: 'Bangers', cursive;
+      font-size: 1.5rem;
+      color: var(--cream);
+      text-decoration: none;
+      text-shadow: 1px 1px 0 var(--dark);
+      padding: .5rem 0;
+      border-bottom: 2px solid rgba(255,255,255,.1);
+    }
+
+    .mobile-menu a:last-child { border-bottom: none; }
+
+    @media (max-width: 768px) {
+      nav ul { display: none; }
+      .hamburger { display: flex; }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      background: var(--dark);
+      border-bottom: 5px solid var(--orange);
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0; right: 0;
+      height: 40px;
+      background: var(--cream);
+      clip-path: polygon(0 100%, 100% 100%, 100% 0, 50% 60%, 0 0);
+    }
+
+    .hero-logo {
+      width: clamp(180px, 30vw, 320px);
+      filter: drop-shadow(0 0 20px var(--orange)) drop-shadow(0 0 40px rgba(232,104,26,.4));
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: var(--orange);
+      color: var(--white);
+      font-family: 'Bangers', cursive;
+      font-size: 1rem;
+      letter-spacing: 3px;
+      padding: .3rem 1.2rem;
+      border: 3px solid var(--dark);
+      border-radius: 4px;
+      box-shadow: 3px 3px 0 var(--dark);
+      margin-bottom: 2.5rem;
+    }
+
+    .hero h1 {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(3.5rem, 9vw, 7rem);
+      color: var(--cream);
+      text-shadow: 4px 4px 0 var(--dark), -2px -2px 0 var(--dark), 2px -2px 0 var(--dark), -2px 2px 0 var(--dark);
+      line-height: 1;
+      margin-bottom: .5rem;
+    }
+
+    .hero h1 span { color: var(--orange); }
+
+    .hero h1 .zap-logo-text {
+      position: relative;
+      display: inline-block;
+      color: var(--orange);
+      font-size: 1.15em;
+      letter-spacing: -2px;
+      filter: drop-shadow(0 0 12px rgba(232,104,26,.5));
+      transform: rotate(-5deg) skewX(-5deg);
+      transform-origin: bottom center;
+    }
+
+    .hero h1 .zap-bolt {
+      display: inline-block;
+      width: .55em;
+      height: 1.1em;
+      margin: 0 0 0 .15em;
+      vertical-align: middle;
+      position: relative;
+      top: -.05em;
+    }
+
+    .hero h1 .zap-bolt svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(2px 2px 0 var(--dark)) drop-shadow(0 0 6px rgba(232,104,26,.4));
+    }
+
+    .hero h1 .zap-nu {
+      color: var(--cream);
+      font-size: .75em;
+      letter-spacing: 1px;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--cream);
+      max-width: 520px;
+      margin: .8rem auto 2rem;
+      font-weight: 700;
+      text-shadow: 1px 1px 0 var(--dark);
+    }
+
+    .hero-btns {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: 'Bangers', cursive;
+      font-size: 1.4rem;
+      letter-spacing: 1px;
+      padding: .6rem 2rem;
+      border: 3px solid var(--dark);
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      box-shadow: 4px 4px 0 var(--dark);
+      transition: transform .1s, box-shadow .1s;
+    }
+
+    .btn:hover {
+      transform: translate(-2px,-2px);
+      box-shadow: 6px 6px 0 var(--dark);
+    }
+
+    .btn-primary { background: var(--orange); color: var(--white); }
+    .btn-secondary { background: var(--cream); color: var(--dark); }
+
+    /* ── SECTION COMMON ── */
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 4rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      color: var(--teal);
+      text-shadow: 3px 3px 0 var(--dark);
+      margin-bottom: .3rem;
+    }
+
+    .section-title span { color: var(--orange); }
+
+    .section-line {
+      width: 60px;
+      height: 5px;
+      background: var(--orange);
+      border: 2px solid var(--dark);
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── STATS STRIP ── */
+    .stats-strip {
+      position: relative;
+      z-index: 1;
+      background: var(--orange);
+      border-top: 4px solid var(--dark);
+      border-bottom: 4px solid var(--dark);
+      padding: 1.2rem 2rem;
+    }
+
+    .stats-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .stat { text-align: center; }
+
+    .stat-num {
+      font-family: 'Bangers', cursive;
+      font-size: 2.8rem;
+      color: var(--white);
+      text-shadow: 2px 2px 0 var(--dark);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: .85rem;
+      font-weight: 900;
+      color: var(--cream);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      display: flex;
+      gap: .7rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .filter-btn {
+      font-family: 'Bangers', cursive;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      padding: .4rem 1.2rem;
+      border: 3px solid var(--dark);
+      border-radius: 30px;
+      cursor: pointer;
+      background: var(--white);
+      color: var(--dark);
+      box-shadow: 3px 3px 0 var(--dark);
+      transition: .15s;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--orange);
+      color: var(--white);
+      transform: translate(-1px,-1px);
+      box-shadow: 4px 4px 0 var(--dark);
+    }
+
+    /* ── CAR CARDS ── */
+    .cars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+
+    .car-card {
+      background: var(--white);
+      border: 3px solid var(--dark);
+      border-radius: 12px;
+      box-shadow: 6px 6px 0 var(--dark);
+      overflow: hidden;
+      transition: transform .15s, box-shadow .15s;
+    }
+
+    .car-card:hover {
+      transform: translate(-3px,-3px);
+      box-shadow: 9px 9px 0 var(--dark);
+    }
+
+    .car-img {
+      width: 100%;
+      height: 240px;
+      overflow: hidden;
+      border-bottom: 3px solid var(--dark);
+      position: relative;
+      background: var(--cream-dk);
+    }
+
+    .car-img img:not(.watermark) {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .3s;
+      display: none;
+    }
+
+    .car-img img.active { display: block; }
+
+    .car-card:hover .car-img img { transform: scale(1.05); }
+
+    /* ── LOGO WATERMARK on all images ── */
+    .watermark {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      opacity: 1;
+      pointer-events: none;
+      z-index: 3;
+      filter: drop-shadow(1px 1px 2px rgba(0,0,0,.6));
+      object-fit: contain;
+    }
+
+    .modal-gallery .watermark {
+      width: 120px;
+      bottom: 12px;
+      right: 12px;
+      transform: none;
+    }
+
+    .gallery-item .watermark {
+      width: 30px;
+      height: 30px;
+      bottom: 30px;
+      right: 6px;
+    }
+
+    .car-img .img-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,.5);
+      color: #fff;
+      border: none;
+      font-size: 1.4rem;
+      padding: .3rem .6rem;
+      cursor: pointer;
+      border-radius: 4px;
+      z-index: 2;
+      font-family: 'Bangers', cursive;
+    }
+
+    .car-img .img-nav:hover { background: var(--orange); }
+    .car-img .img-prev { left: 6px; }
+    .car-img .img-next { right: 6px; }
+
+    .car-img .img-counter {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.6);
+      color: #fff;
+      font-size: .75rem;
+      font-weight: 900;
+      padding: .15rem .6rem;
+      border-radius: 10px;
+      z-index: 2;
+    }
+
+    .car-badge-overlay {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--orange);
+      color: var(--white);
+      font-family: 'Bangers', cursive;
+      font-size: .9rem;
+      padding: .2rem .6rem;
+      border: 2px solid var(--dark);
+      border-radius: 4px;
+      box-shadow: 2px 2px 0 var(--dark);
+    }
+
+    .car-body { padding: 1.2rem; }
+
+    .car-tag {
+      display: inline-block;
+      color: var(--white);
+      font-family: 'Bangers', cursive;
+      font-size: .85rem;
+      letter-spacing: 1px;
+      padding: .15rem .7rem;
+      border: 2px solid var(--dark);
+      border-radius: 4px;
+      margin-bottom: .6rem;
+    }
+
+    .car-tag.electric { background: var(--teal); }
+    .car-tag.hybrid   { background: #5a9e4b; }
+    .car-tag.phev     { background: #3a7d3e; }
+    .car-tag.petrol   { background: #b03a2e; }
+    .car-tag.diesel   { background: #6b6b6b; }
+
+    .car-name {
+      font-family: 'Bangers', cursive;
+      font-size: 1.7rem;
+      color: var(--dark);
+      line-height: 1.1;
+      margin-bottom: .4rem;
+    }
+
+    .car-meta {
+      font-size: .88rem;
+      color: #555;
+      margin-bottom: .8rem;
+      font-weight: 700;
+    }
+
+    .car-specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .3rem .8rem;
+      font-size: .82rem;
+      font-weight: 700;
+      color: #555;
+      margin-bottom: .8rem;
+      padding: .6rem;
+      background: var(--cream);
+      border: 2px solid var(--dark);
+      border-radius: 8px;
+    }
+
+    .car-specs div span { color: var(--dark); }
+
+    .car-price {
+      font-family: 'Bangers', cursive;
+      font-size: 2rem;
+      color: var(--orange);
+      text-shadow: 1px 1px 0 var(--dark);
+      margin-bottom: .3rem;
+    }
+
+    .car-price small {
+      font-size: .85rem;
+      color: #888;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .car-features {
+      display: flex;
+      gap: .4rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .feature-chip {
+      background: var(--cream);
+      border: 2px solid var(--dark);
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 900;
+      padding: .15rem .6rem;
+    }
+
+    .car-btn { width: 100%; text-align: center; }
+
+    .car-card { cursor: pointer; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      z-index: 200;
+      overflow-y: auto;
+      padding: 2rem 1rem;
+    }
+
+    .modal-overlay.open { display: flex; justify-content: center; align-items: flex-start; }
+
+    .modal {
+      background: var(--white);
+      border: 4px solid var(--dark);
+      border-radius: 16px;
+      box-shadow: 10px 10px 0 var(--dark);
+      max-width: 900px;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      animation: modalPop .25s ease;
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 10;
+      background: var(--orange);
+      color: var(--white);
+      border: 3px solid var(--dark);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-family: 'Bangers', cursive;
+      font-size: 1.3rem;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 var(--dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover { background: var(--orange-dk); }
+
+    .modal-gallery {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      background: var(--dark);
+      overflow: hidden;
+    }
+
+    @media (max-width: 640px) { .modal-gallery { height: 260px; } }
+
+    .modal-gallery img:not(.watermark) {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .modal-gallery img.active { display: block; }
+
+    .modal-gallery .img-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,.6);
+      color: #fff;
+      border: none;
+      font-size: 2rem;
+      padding: .4rem .8rem;
+      cursor: pointer;
+      border-radius: 6px;
+      z-index: 2;
+      font-family: 'Bangers', cursive;
+    }
+
+    .modal-gallery .img-nav:hover { background: var(--orange); }
+    .modal-gallery .img-prev { left: 10px; }
+    .modal-gallery .img-next { right: 10px; }
+
+    .modal-gallery .img-counter {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.7);
+      color: #fff;
+      font-size: .9rem;
+      font-weight: 900;
+      padding: .3rem 1rem;
+      border-radius: 20px;
+      z-index: 2;
+    }
+
+    .modal-thumbs {
+      display: flex;
+      gap: 4px;
+      padding: 8px;
+      background: var(--dark);
+      overflow-x: auto;
+    }
+
+    .modal-thumbs img {
+      width: 70px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      opacity: .5;
+      transition: .15s;
+    }
+
+    .modal-thumbs img.active { border-color: var(--orange); opacity: 1; }
+    .modal-thumbs img:hover { opacity: .8; }
+
+    .modal-body { padding: 1.5rem 2rem 2rem; }
+
+    .modal-body .car-tag { font-size: 1rem; padding: .2rem .9rem; }
+
+    .modal-body .car-name { font-size: 2.2rem; margin-bottom: .5rem; }
+
+    .modal-body .car-price { font-size: 2.5rem; margin: .5rem 0; }
+
+    .modal-specs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .5rem 2rem;
+      background: var(--cream);
+      border: 3px solid var(--dark);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .modal-specs-grid div { color: #555; }
+    .modal-specs-grid div span { color: var(--dark); }
+
+    @media (max-width: 640px) { .modal-specs-grid { grid-template-columns: 1fr; } }
+
+    .modal-description {
+      margin: 1.2rem 0;
+      font-size: .95rem;
+      line-height: 1.7;
+      color: #444;
+      font-weight: 700;
+    }
+
+    .modal-description h3 {
+      font-family: 'Bangers', cursive;
+      font-size: 1.4rem;
+      color: var(--teal);
+      margin: 1rem 0 .4rem;
+    }
+
+    .modal-description ul {
+      list-style: none;
+      padding: 0;
+      columns: 2;
+    }
+
+    @media (max-width: 640px) { .modal-description ul { columns: 1; } }
+
+    .modal-description ul li {
+      padding: .15rem 0;
+      padding-left: 1.2rem;
+      position: relative;
+    }
+
+    .modal-description ul li::before {
+      content: '⚡';
+      position: absolute;
+      left: 0;
+    }
+
+    .modal-cta {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .modal-cta .btn { flex: 1; min-width: 200px; text-align: center; }
+
+    /* ── SPEECH BUBBLE ── */
+    .bubble-section {
+      position: relative;
+      z-index: 1;
+      background: var(--teal-dk);
+      border-top: 4px solid var(--dark);
+      border-bottom: 4px solid var(--dark);
+      padding: 3rem 2rem;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .speech-bubble {
+      position: relative;
+      display: inline-block;
+      background: var(--white);
+      border: 4px solid var(--dark);
+      border-radius: 20px;
+      padding: 1.5rem 2.5rem;
+      max-width: 700px;
+      box-shadow: 6px 6px 0 var(--dark);
+    }
+
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 14px 14px 0;
+      border-style: solid;
+      border-color: var(--dark) transparent transparent;
+    }
+
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 12px 12px 0;
+      border-style: solid;
+      border-color: var(--white) transparent transparent;
+      z-index: 1;
+    }
+
+    .speech-bubble p {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      color: var(--teal);
+      text-shadow: 1px 1px 0 var(--dark);
+      letter-spacing: 1px;
+    }
+
+    .speech-bubble p span { color: var(--orange); }
+
+    .bubble-avatar { font-size: 5rem; margin-top: 2.5rem; }
+
+    /* ── REVIEWS ── */
+    .reviews-section {
+      position: relative;
+      z-index: 1;
+      background: var(--cream);
+      padding: 4rem 2rem;
+    }
+
+    .reviews-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .review-card {
+      background: var(--white);
+      border: 3px solid var(--dark);
+      border-radius: 12px;
+      box-shadow: 5px 5px 0 var(--dark);
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    .review-stars {
+      color: var(--orange);
+      font-size: 1.4rem;
+      margin-bottom: .5rem;
+    }
+
+    .review-text {
+      font-size: .95rem;
+      font-weight: 700;
+      color: #444;
+      font-style: italic;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .review-author {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+    }
+
+    .review-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 3px solid var(--dark);
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-family: 'Bangers', cursive;
+      color: var(--teal);
+    }
+
+    .review-name {
+      font-family: 'Bangers', cursive;
+      font-size: 1.1rem;
+      color: var(--dark);
+    }
+
+    .review-car {
+      font-size: .8rem;
+      color: #888;
+      font-weight: 700;
+    }
+
+    .review-badge {
+      position: absolute;
+      top: -10px;
+      right: 15px;
+      background: var(--teal);
+      color: var(--white);
+      font-family: 'Bangers', cursive;
+      font-size: .75rem;
+      letter-spacing: 1px;
+      padding: .2rem .6rem;
+      border: 2px solid var(--dark);
+      border-radius: 4px;
+      box-shadow: 2px 2px 0 var(--dark);
+    }
+
+    /* ── WHY ZAP ── */
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .why-card {
+      background: var(--white);
+      border: 3px solid var(--dark);
+      border-radius: 12px;
+      box-shadow: 5px 5px 0 var(--dark);
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .why-icon { font-size: 3rem; display: block; margin-bottom: .7rem; }
+
+    .why-title {
+      font-family: 'Bangers', cursive;
+      font-size: 1.4rem;
+      color: var(--teal);
+      margin-bottom: .4rem;
+    }
+
+    .why-text { font-size: .9rem; color: #555; font-weight: 700; }
+
+    /* ── GALLERY ── */
+    .gallery-section {
+      position: relative;
+      z-index: 1;
+      background: var(--dark);
+      border-top: 4px solid var(--dark);
+      border-bottom: 4px solid var(--dark);
+      padding: 4rem 2rem;
+      overflow: hidden;
+    }
+
+    .gallery-inner { max-width: 1200px; margin: 0 auto; }
+
+    .gallery-section .section-title { color: var(--cream); }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .gallery-item {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 3px solid var(--orange);
+      box-shadow: 4px 4px 0 rgba(232,104,26,.3);
+      position: relative;
+      height: 200px;
+      cursor: pointer;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .3s;
+    }
+
+    .gallery-item:hover img { transform: scale(1.1); }
+
+    .gallery-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,.8));
+      padding: .8rem;
+      color: var(--cream);
+      font-family: 'Bangers', cursive;
+      font-size: 1rem;
+      letter-spacing: 1px;
+    }
+
+    /* ── MAP / LOCATION ── */
+    .map-section {
+      position: relative;
+      z-index: 1;
+      background: var(--cream);
+      padding: 4rem 2rem;
+    }
+
+    .map-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .map-inner { grid-template-columns: 1fr; }
+    }
+
+    .map-embed {
+      border: 4px solid var(--dark);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 6px 6px 0 var(--dark);
+      height: 350px;
+    }
+
+    .map-embed iframe { width: 100%; height: 100%; border: none; }
+
+    .location-info {
+      background: var(--white);
+      border: 3px solid var(--dark);
+      border-radius: 12px;
+      box-shadow: 5px 5px 0 var(--dark);
+      padding: 2rem;
+    }
+
+    .location-info h3 {
+      font-family: 'Bangers', cursive;
+      font-size: 1.8rem;
+      color: var(--teal);
+      text-shadow: 2px 2px 0 var(--dark);
+      margin-bottom: 1rem;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: .8rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .info-icon {
+      font-size: 1.5rem;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .info-row strong {
+      display: block;
+      font-family: 'Bangers', cursive;
+      font-size: 1.1rem;
+      color: var(--teal);
+      letter-spacing: 1px;
+    }
+
+    .info-row p { font-size: .9rem; color: #555; margin-top: .1rem; }
+
+    .hours-table {
+      width: 100%;
+      margin-top: .5rem;
+      font-size: .85rem;
+    }
+
+    .hours-table td {
+      padding: .2rem 0;
+      font-weight: 700;
+    }
+
+    .hours-table td:first-child { color: var(--dark); }
+    .hours-table td:last-child { color: var(--teal); text-align: right; }
+
+    /* ── PREVOZNE ZNACKY ── */
+    .plates-section {
+      position: relative;
+      z-index: 1;
+      background: var(--dark);
+      border-top: 4px solid var(--orange);
+      border-bottom: 4px solid var(--orange);
+      padding: 4rem 2rem;
+    }
+
+    .plates-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .plates-section .section-title { color: var(--cream); }
+    .plates-section .section-line { margin: 0 auto 2.5rem; }
+
+    .plates-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .plate-card { flex: 0 1 320px; }
+
+    .plate-card {
+      background: var(--white);
+      border: 3px solid var(--orange);
+      border-radius: 12px;
+      box-shadow: 5px 5px 0 var(--orange);
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .plate-icon { font-size: 3rem; margin-bottom: .7rem; display: block; }
+
+    .plate-title {
+      font-family: 'Bangers', cursive;
+      font-size: 1.5rem;
+      color: var(--orange);
+      margin-bottom: .3rem;
+    }
+
+    .plate-price {
+      font-family: 'Bangers', cursive;
+      font-size: 2.2rem;
+      color: var(--cream);
+      text-shadow: 2px 2px 0 var(--dark);
+      background: var(--teal);
+      border: 3px solid var(--dark);
+      border-radius: 8px;
+      display: inline-block;
+      padding: .2rem 1rem;
+      margin: .8rem 0;
+    }
+
+    .plate-text {
+      font-size: .9rem;
+      color: #555;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .plates-note {
+      margin-top: 2rem;
+      background: var(--teal);
+      border: 3px solid var(--dark);
+      border-radius: 10px;
+      padding: 1.2rem 1.5rem;
+      color: var(--cream);
+      font-weight: 700;
+      font-size: .95rem;
+      line-height: 1.6;
+      text-align: left;
+    }
+
+    .plates-note strong {
+      font-family: 'Bangers', cursive;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+      color: var(--orange);
+    }
+
+    /* ── RESERVATION CALENDAR ── */
+    .reservation-section {
+      margin-top: 2.5rem;
+      background: var(--white);
+      border: 3px solid var(--orange);
+      border-radius: 12px;
+      box-shadow: 5px 5px 0 var(--orange);
+      padding: 2rem;
+    }
+
+    .reservation-section h3 {
+      font-family: 'Bangers', cursive;
+      font-size: 2rem;
+      color: var(--orange);
+      text-align: center;
+      margin-bottom: .3rem;
+    }
+
+    .reservation-subtitle {
+      text-align: center;
+      color: #666;
+      font-weight: 700;
+      font-size: .9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .calendar-wrapper {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .calendar-box {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .8rem;
+    }
+
+    .calendar-header button {
+      background: var(--teal);
+      color: white;
+      border: 2px solid var(--dark);
+      border-radius: 6px;
+      width: 36px;
+      height: 36px;
+      font-size: 1.2rem;
+      font-weight: 900;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      transition: background .2s;
+    }
+
+    .calendar-header button:hover { background: var(--teal-dk); }
+
+    .calendar-month {
+      font-family: 'Bangers', cursive;
+      font-size: 1.4rem;
+      color: var(--dark);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      text-align: center;
+    }
+
+    .calendar-grid .day-label {
+      font-weight: 900;
+      font-size: .75rem;
+      color: var(--teal);
+      padding: 4px 0;
+    }
+
+    .calendar-grid .day {
+      padding: 8px 4px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: all .15s;
+      border: 2px solid transparent;
+    }
+
+    .calendar-grid .day:hover:not(.disabled):not(.empty) {
+      background: var(--cream);
+      border-color: var(--orange);
+    }
+
+    .calendar-grid .day.empty { cursor: default; }
+
+    .calendar-grid .day.disabled {
+      color: #ccc;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
+    .calendar-grid .day.booked {
+      background: #ffcccc;
+      color: #c00;
+      cursor: not-allowed;
+      font-weight: 900;
+    }
+
+    .calendar-grid .day.selected {
+      background: var(--orange);
+      color: white;
+      border-color: var(--dark);
+    }
+
+    .calendar-grid .day.in-range {
+      background: #fde0c2;
+      color: var(--dark);
+    }
+
+    .calendar-grid .day.today {
+      border-color: var(--teal);
+    }
+
+    .reservation-form-box {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .res-summary {
+      background: var(--cream);
+      border: 2px solid var(--dark);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .res-summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-weight: 700;
+      font-size: .9rem;
+    }
+
+    .res-summary-row.total {
+      border-top: 2px solid var(--dark);
+      margin-top: 6px;
+      padding-top: 8px;
+      font-family: 'Bangers', cursive;
+      font-size: 1.3rem;
+      color: var(--orange);
+    }
+
+    .res-form label {
+      display: block;
+      font-weight: 900;
+      font-size: .85rem;
+      margin-bottom: 4px;
+      margin-top: .8rem;
+      color: var(--dark);
+    }
+
+    .res-form input,
+    .res-form select,
+    .res-form textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid var(--dark);
+      border-radius: 6px;
+      font-family: 'Nunito', sans-serif;
+      font-size: .9rem;
+      font-weight: 700;
+      background: var(--white);
+    }
+
+    .res-form input:focus,
+    .res-form select:focus,
+    .res-form textarea:focus {
+      outline: none;
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(232,104,26,.2);
+    }
+
+    .res-form textarea { resize: vertical; min-height: 60px; }
+
+    .res-btn {
+      margin-top: 1.2rem;
+      width: 100%;
+      padding: 14px;
+      background: var(--orange);
+      color: white;
+      font-family: 'Bangers', cursive;
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+      border: 3px solid var(--dark);
+      border-radius: 8px;
+      box-shadow: 4px 4px 0 var(--dark);
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .res-btn:hover {
+      background: var(--orange-dk);
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--dark);
+    }
+
+    .res-btn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+      box-shadow: 4px 4px 0 #888;
+    }
+
+    .res-legend {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: .8rem;
+      font-size: .75rem;
+      font-weight: 700;
+    }
+
+    .res-legend span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .res-legend .dot {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid #999;
+    }
+
+    .res-success {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .res-success.show { display: block; }
+
+    .res-success h4 {
+      font-family: 'Bangers', cursive;
+      font-size: 2rem;
+      color: var(--teal);
+      margin-bottom: .5rem;
+    }
+
+    .res-success p {
+      font-weight: 700;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .res-back-btn {
+      margin-top: 1rem;
+      padding: 10px 24px;
+      background: var(--teal);
+      color: white;
+      font-family: 'Bangers', cursive;
+      font-size: 1.2rem;
+      border: 2px solid var(--dark);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 700px) {
+      .calendar-wrapper { flex-direction: column; }
+      .reservation-section { padding: 1.2rem; }
+    }
+
+    /* ── CONTACT ── */
+    .contact-section {
+      position: relative;
+      z-index: 1;
+      background: var(--teal);
+      border-top: 4px solid var(--dark);
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .contact-section .section-title { color: var(--cream); }
+
+    .contact-form {
+      max-width: 560px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .contact-form input,
+    .contact-form textarea,
+    .contact-form select {
+      background: var(--white);
+      border: 3px solid var(--dark);
+      border-radius: 8px;
+      padding: .8rem 1rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      box-shadow: 3px 3px 0 var(--dark);
+      outline: none;
+    }
+
+    .contact-form textarea { resize: vertical; min-height: 110px; }
+
+    .contact-form input:focus,
+    .contact-form textarea:focus,
+    .contact-form select:focus { border-color: var(--orange); }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      background: var(--dark);
+      color: var(--cream);
+      padding: 3rem 2rem 2rem;
+      border-top: 4px solid var(--orange);
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .footer-inner { grid-template-columns: 1fr; text-align: center; }
+    }
+
+    footer img { height: 60px; margin-bottom: .8rem; filter: drop-shadow(0 0 8px var(--orange)); }
+
+    .footer-col h4 {
+      font-family: 'Bangers', cursive;
+      font-size: 1.3rem;
+      color: var(--orange);
+      margin-bottom: .6rem;
+      letter-spacing: 1px;
+    }
+
+    .footer-col p, .footer-col a {
+      font-size: .9rem;
+      color: var(--cream);
+      opacity: .8;
+      line-height: 1.8;
+      text-decoration: none;
+      display: block;
+    }
+
+    .footer-col a:hover { opacity: 1; color: var(--orange); }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 2rem auto 0;
+      padding-top: 1.5rem;
+      border-top: 2px solid rgba(255,255,255,.1);
+      text-align: center;
+      font-size: .85rem;
+      opacity: .5;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+      margin-top: .5rem;
+    }
+
+    @media (max-width: 768px) {
+      .social-links { justify-content: center; }
+    }
+
+    .social-links a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: var(--teal);
+      border: 2px solid var(--cream);
+      border-radius: 8px;
+      font-size: 1.2rem;
+      text-decoration: none;
+      transition: .15s;
+      opacity: 1 !important;
+    }
+
+    .social-links a:hover {
+      background: var(--orange);
+      transform: translate(-2px,-2px);
+      box-shadow: 3px 3px 0 var(--orange);
+    }
+
+    /* ── BG LOGO SCATTER ── */
+    .bg-logos {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .bg-logos img {
+      position: absolute;
+      opacity: .09;
+      user-select: none;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- BG SCATTERED LOGOS - generated by JS for full page coverage -->
+<div class="bg-logos" id="bgLogos"></div>
+<script>
+(function(){
+  const c = document.getElementById('bgLogos');
+  const positions = [
+    {w:280,t:1,l:2,r:-15},{w:320,t:3,l:60,r:12},{w:250,t:2,l:85,r:-20},
+    {w:300,t:8,l:25,r:18},{w:340,t:7,l:70,r:-8},{w:260,t:10,l:5,r:25},
+    {w:290,t:13,l:40,r:-12},{w:310,t:12,l:80,r:15},{w:270,t:15,l:15,r:-22},
+    {w:330,t:18,l:55,r:10},{w:250,t:17,l:90,r:-18},{w:300,t:20,l:3,r:20},
+    {w:280,t:22,l:35,r:-14},{w:320,t:24,l:68,r:8},{w:260,t:23,l:10,r:-25},
+    {w:310,t:27,l:50,r:16},{w:290,t:26,l:82,r:-10},{w:340,t:30,l:20,r:22},
+    {w:270,t:29,l:65,r:-16},{w:300,t:32,l:5,r:12},{w:250,t:34,l:42,r:-20},
+    {w:320,t:35,l:75,r:14},{w:280,t:37,l:15,r:-8},{w:310,t:39,l:55,r:25},
+    {w:260,t:40,l:88,r:-18},{w:340,t:43,l:30,r:10},{w:290,t:42,l:0,r:-22},
+    {w:300,t:46,l:62,r:18},{w:270,t:45,l:22,r:-12},{w:330,t:48,l:80,r:15},
+    {w:280,t:50,l:8,r:-20},{w:310,t:52,l:45,r:12},{w:250,t:53,l:70,r:-15},
+    {w:320,t:55,l:18,r:22},{w:290,t:57,l:58,r:-8},{w:340,t:56,l:90,r:18},
+    {w:260,t:60,l:5,r:-25},{w:300,t:62,l:38,r:14},{w:280,t:61,l:75,r:-10},
+    {w:310,t:65,l:25,r:20},{w:330,t:64,l:60,r:-16},{w:270,t:67,l:85,r:12},
+    {w:290,t:70,l:10,r:-18},{w:320,t:69,l:48,r:8},{w:250,t:72,l:72,r:-22},
+    {w:340,t:74,l:2,r:15},{w:280,t:75,l:35,r:-12},{w:300,t:77,l:65,r:20},
+    {w:260,t:78,l:88,r:-8},{w:310,t:80,l:15,r:25},{w:290,t:82,l:52,r:-18},
+    {w:330,t:83,l:78,r:10},{w:270,t:85,l:8,r:-14},{w:320,t:87,l:42,r:22},
+    {w:250,t:88,l:70,r:-20},{w:300,t:90,l:25,r:16},{w:340,t:92,l:58,r:-10},
+    {w:280,t:93,l:85,r:18},{w:310,t:95,l:5,r:-22},{w:290,t:97,l:48,r:12},
+  ];
+  positions.forEach(p => {
+    const img = document.createElement('img');
+    img.src = 'logo.png';
+    img.style.cssText = `width:${p.w}px;top:${p.t}%;left:${p.l}%;transform:rotate(${p.r}deg);`;
+    c.appendChild(img);
+  });
+})();
+</script>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo-wrap">
+    <img src="logo.png" alt="ZAP! logo" />
+  </a>
+  <ul>
+    <li><a href="#ponuka">Ponuka</a></li>
+    <li><a href="#recenzie">Recenzie</a></li>
+    <li><a href="#preco-zap">Prečo ZAP!</a></li>
+    <li><a href="#prevozne-znacky">Prevozné značky</a></li>
+    <li><a href="#kde-nas-najdete">Kde sme</a></li>
+    <li><a href="#kontakt" class="nav-cta">Dohodnem sa!</a></li>
+  </ul>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#ponuka" onclick="toggleMenu()">Ponuka</a>
+  <a href="#recenzie" onclick="toggleMenu()">Recenzie</a>
+  <a href="#preco-zap" onclick="toggleMenu()">Prečo ZAP!</a>
+  <a href="#prevozne-znacky" onclick="toggleMenu()">Prevozné značky</a>
+  <a href="#kde-nas-najdete" onclick="toggleMenu()">Kde sme</a>
+  <a href="#kontakt" onclick="toggleMenu()">Dohodnem sa!</a>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <img src="logo.png" alt="ZAP! logo" class="hero-logo" />
+  <br />
+  <div class="hero-badge">ZAP! YOURSELF</div>
+  <h1>AUTÁ KTORÉ VÁS <span class="zap-logo-text">ZAP</span><span class="zap-nu">NÚ</span><span class="zap-bolt"><svg viewBox="0 0 50 100" xmlns="http://www.w3.org/2000/svg"><polygon points="30,0 0,55 20,55 10,100 50,40 28,40 38,0" fill="#e8681a" stroke="#1e1e1e" stroke-width="3" stroke-linejoin="round"/></svg></span></h1>
+  <p>Nájdi auto, ktoré ťa naštartuje. Elektrické, hybridné, šialene dobré.</p>
+  <div class="hero-btns">
+    <a href="#ponuka" class="btn btn-primary">Pozrieť ponuku</a>
+    <a href="#kontakt" class="btn btn-secondary">Napíš nám!</a>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat">
+      <span class="stat-num">120+</span>
+      <span class="stat-label">Vozidiel skladom</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">4,9 / 5</span>
+      <span class="stat-label">Hodnotenie zákazníkov</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">850+</span>
+      <span class="stat-label">Spokojných majiteľov</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">48h</span>
+      <span class="stat-label">Priemer. doba predaja</span>
+    </div>
+  </div>
+</div>
+
+<!-- CARS -->
+<section id="ponuka">
+  <h2 class="section-title">Naša <span>Ponuka</span></h2>
+  <div class="section-line"></div>
+
+  <div class="cars-grid">
+
+    <!-- Tesla Model 3 CARD -->
+    <div class="car-card" onclick="openModal('tesla')">
+      <div class="car-img">
+        <img src="img/tm3/1.jpg" class="active" alt="Tesla Model 3" />
+        <img src="logo.png" class="watermark" alt="" />
+        <div class="car-badge-overlay">AVILOO 90,8%</div>
+      </div>
+      <div class="car-body">
+        <span class="car-tag electric">Elektrické</span>
+        <div class="car-name">Tesla Model 3 Long Range</div>
+        <div class="car-meta">2019 · 169 000 km · Čierna · 484 HP</div>
+        <div class="car-specs">
+          <div>Výkon: <span>355 kW (484 k)</span></div>
+          <div>Batéria: <span>75 kWh</span></div>
+          <div>Dojazd: <span>až 430 km reálny</span></div>
+          <div>SOH batérie: <span>90,8 %</span></div>
+        </div>
+        <div class="car-price">17 900 € <small>bez DPH · odpočet DPH</small></div>
+        <div class="car-features">
+          <span class="feature-chip">Autopilot 3.0</span>
+          <span class="feature-chip">Ťažné</span>
+          <span class="feature-chip">AVILOO</span>
+          <span class="feature-chip">Záruka batérie</span>
+        </div>
+        <a class="btn btn-primary car-btn">Zobraziť detail</a>
+      </div>
+    </div>
+
+    <!-- VW ID.3 CARD -->
+    <div class="car-card" onclick="openModal('id3')">
+      <div class="car-img">
+        <img src="img/id3/1.jpg" class="active" alt="VW ID.3" />
+        <img src="logo.png" class="watermark" alt="" />
+        <div class="car-badge-overlay">1ST EDITION</div>
+      </div>
+      <div class="car-body">
+        <span class="car-tag electric">Elektrické</span>
+        <div class="car-name">VW ID.3 1ST Pro Performance</div>
+        <div class="car-meta">12/2020 · 134 126 km · Biela · 150 kW</div>
+        <div class="car-specs">
+          <div>Výkon: <span>150 kW (204 k)</span></div>
+          <div>Batéria: <span>62 kWh (brutto)</span></div>
+          <div>Dojazd: <span>350–380 km (leto)</span></div>
+          <div>Nabíjanie: <span>100 kW DC</span></div>
+        </div>
+        <div class="car-price">14 600 € <small>bez DPH · odpočet DPH</small></div>
+        <div class="car-features">
+          <span class="feature-chip">Matrix LED</span>
+          <span class="feature-chip">Záruka do 2028</span>
+          <span class="feature-chip">ACC</span>
+          <span class="feature-chip">Keyless</span>
+        </div>
+        <a class="btn btn-primary car-btn">Zobraziť detail</a>
+      </div>
+    </div>
+
+    <!-- Škoda Octavia Combi CARD -->
+    <div class="car-card" onclick="openModal('octavia')">
+      <div class="car-img">
+        <img src="img/octavia/1.jpg" class="active" alt="Škoda Octavia Combi" />
+        <img src="logo.png" class="watermark" alt="" />
+      </div>
+      <div class="car-body">
+        <span class="car-tag diesel">Diesel</span>
+        <div class="car-name">Škoda Octavia Combi III 1.6 TDI</div>
+        <div class="car-meta">01/2014 · 290 000 km · Čierna · DSG</div>
+        <div class="car-specs">
+          <div>Výkon: <span>77 kW (105 k)</span></div>
+          <div>Spotreba: <span>5,5 l/100km</span></div>
+          <div>Motor: <span>1.6 TDI CLH</span></div>
+          <div>Prevodovka: <span>DSG 7-st.</span></div>
+        </div>
+        <div class="car-price">6 500 €</div>
+        <div class="car-features">
+          <span class="feature-chip">Bi-Xenón</span>
+          <span class="feature-chip">Koža</span>
+          <span class="feature-chip">Navi Columbus</span>
+          <span class="feature-chip">KESSY</span>
+        </div>
+        <a class="btn btn-primary car-btn">Zobraziť detail</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════ MODALS ══════ -->
+
+<!-- TESLA MODAL -->
+<div class="modal-overlay" id="modal-tesla">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('tesla')">X</button>
+    <div class="modal-gallery" data-gallery>
+      <img src="img/tm3/1.jpg" class="active" alt="Tesla Model 3" />
+      <img src="img/tm3/2.jpg" alt="" /><img src="img/tm3/3.jpg" alt="" />
+      <img src="img/tm3/4.jpg" alt="" /><img src="img/tm3/5.jpg" alt="" />
+      <img src="img/tm3/6.jpg" alt="" /><img src="img/tm3/7.jpg" alt="" />
+      <img src="img/tm3/8.jpg" alt="" /><img src="img/tm3/9.jpg" alt="" />
+      <img src="img/tm3/10.jpg" alt="" /><img src="img/tm3/11.jpg" alt="" />
+      <img src="img/tm3/12.jpg" alt="" /><img src="img/tm3/13.jpg" alt="" />
+      <img src="img/tm3/14.jpg" alt="" /><img src="img/tm3/15.jpg" alt="" />
+      <img src="img/tm3/16.jpg" alt="" /><img src="img/tm3/17.jpg" alt="" />
+      <img src="img/tm3/18.jpg" alt="" /><img src="img/tm3/19.jpg" alt="" />
+      <img src="img/tm3/20.jpg" alt="" /><img src="img/tm3/21.jpg" alt="" />
+      <img src="img/tm3/22.jpg" alt="" /><img src="img/tm3/23.jpg" alt="" />
+      <img src="logo.png" class="watermark" alt="" />
+      <button class="img-nav img-prev" onclick="slideImg(this,-1)">&lt;</button>
+      <button class="img-nav img-next" onclick="slideImg(this,1)">&gt;</button>
+      <div class="img-counter">1 / 23</div>
+    </div>
+    <div class="modal-thumbs" id="thumbs-tesla"></div>
+    <div class="modal-body">
+      <span class="car-tag electric">Elektrické</span>
+      <div class="car-name">Tesla Model 3 Long Range AWD</div>
+      <div class="car-price">17 900 € <small>bez DPH · možnosť odpočtu DPH</small></div>
+
+      <div class="modal-specs-grid">
+        <div>Rok výroby: <span>2019</span></div>
+        <div>Nájazd: <span>169 000 km</span></div>
+        <div>Výkon: <span>355 kW / 484 HP</span></div>
+        <div>Batéria: <span>75 kWh</span></div>
+        <div>SOH batérie: <span>90,8 % (AVILOO)</span></div>
+        <div>Reálny dojazd: <span>až 430 km</span></div>
+        <div>Nabíjanie: <span>Ultra rýchle (Supercharger)</span></div>
+        <div>Pohon: <span>AWD (4x4)</span></div>
+        <div>Farba: <span>Čierna</span></div>
+        <div>VIN: <span>5YJ3E7EB9KF532742</span></div>
+        <div>STK: <span>do 04/2027</span></div>
+        <div>Záruka batérie: <span>do 04/2027 / 192 000 km</span></div>
+      </div>
+
+      <div class="modal-description">
+        <h3>Popis</h3>
+        <p>Vozidlo vo veľmi dobrom stave vizuálne aj technicky — všetko je plne funkčné. Dovoz z Holandska, 2. majiteľ. AVILOO Flash Test potvrdzuje zdravie batérie na 90,8%. Zelené značky + EL, STK do 04/2027, ročná diaľničná známka.</p>
+
+        <h3>Výbava</h3>
+        <ul>
+          <li>Autopilot 3.0</li>
+          <li>Premium Connectivity</li>
+          <li>Ťažné zariadenie (originál Tesla)</li>
+          <li>R19 kolesá + letné pneumatiky</li>
+          <li>Vyhrievané sedadlá (predné + zadné)</li>
+          <li>Panoramatická strecha</li>
+          <li>Tesla AC nabíjací kábel</li>
+          <li>2x vstupná karta</li>
+          <li>Ultra rýchle nabíjanie</li>
+          <li>Kožený interiér</li>
+        </ul>
+
+        <h3>Financovanie</h3>
+        <p>Možnosť financovania cez lízing alebo úver. Odpočet DPH pre firmy.</p>
+      </div>
+
+      <div class="modal-cta">
+        <a href="#kontakt" class="btn btn-primary" onclick="closeModal('tesla')">Mám záujem!</a>
+        <a href="tel:+421904260438" class="btn btn-secondary">Zavolať</a>
+        <a href="https://www.youtube.com/watch?v=iraAyDvr4bQ" target="_blank" class="btn btn-secondary" style="background:var(--teal);color:var(--white);">VIDEO obhliadka</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VW ID.3 MODAL -->
+<div class="modal-overlay" id="modal-id3">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('id3')">X</button>
+    <div class="modal-gallery" data-gallery>
+      <img src="img/id3/1.jpg" class="active" alt="VW ID.3" />
+      <img src="img/id3/2.jpg" alt="" /><img src="img/id3/3.jpg" alt="" />
+      <img src="img/id3/4.jpg" alt="" /><img src="img/id3/5.jpg" alt="" />
+      <img src="img/id3/6.jpg" alt="" /><img src="img/id3/7.jpg" alt="" />
+      <img src="img/id3/8.jpg" alt="" /><img src="img/id3/9.jpg" alt="" />
+      <img src="img/id3/10.jpg" alt="" /><img src="img/id3/11.jpg" alt="" />
+      <img src="img/id3/12.jpg" alt="" /><img src="img/id3/13.jpg" alt="" />
+      <img src="img/id3/14.jpg" alt="" /><img src="img/id3/15.jpg" alt="" />
+      <img src="img/id3/16.jpg" alt="" /><img src="img/id3/17.jpg" alt="" />
+      <img src="img/id3/18.jpg" alt="" /><img src="img/id3/19.jpg" alt="" />
+      <img src="img/id3/20.jpg" alt="" />
+      <img src="logo.png" class="watermark" alt="" />
+      <button class="img-nav img-prev" onclick="slideImg(this,-1)">&lt;</button>
+      <button class="img-nav img-next" onclick="slideImg(this,1)">&gt;</button>
+      <div class="img-counter">1 / 20</div>
+    </div>
+    <div class="modal-thumbs" id="thumbs-id3"></div>
+    <div class="modal-body">
+      <span class="car-tag electric">Elektrické</span>
+      <div class="car-name">VW ID.3 1ST Pro Performance</div>
+      <div class="car-price">14 600 € <small>bez DPH · s DPH 17 958 € · odpočet DPH</small></div>
+
+      <div class="modal-specs-grid">
+        <div>Rok výroby: <span>12/2020</span></div>
+        <div>Nájazd: <span>134 126 km</span></div>
+        <div>Výkon: <span>150 kW / 204 k</span></div>
+        <div>Batéria: <span>58 kWh (brutto 62 kWh)</span></div>
+        <div>Dojazd leto: <span>350–380 km</span></div>
+        <div>Dojazd zima: <span>260–300 km</span></div>
+        <div>Nabíjanie DC: <span>100 kW — 30 min na 80%</span></div>
+        <div>Spotreba: <span>cca 2,50 €/100 km</span></div>
+        <div>Farba: <span>Biela</span></div>
+        <div>VIN: <span>WVWZZZE1ZLP006551</span></div>
+        <div>STK: <span>do 10/2027</span></div>
+        <div>Záruka: <span>do 12/2028 / 160 000 km</span></div>
+      </div>
+
+      <div class="modal-description">
+        <h3>Popis</h3>
+        <p>Veľmi dobrý stav. Dovoz z Holandska, 1. majiteľ. Kompletná servisná história VW. Modul batérie vymenený v záruke VW. OTA aktualizovaný na najnovšiu verziu. Konfiguračný list a servisná dokumentácia k dispozícii.</p>
+
+        <h3>Výbava</h3>
+        <ul>
+          <li>MATRIX LED IQ.Light svetlomety</li>
+          <li>KESSY (bezkľúčový vstup + štart)</li>
+          <li>Vyhrievané sedadlá + volant</li>
+          <li>ACC adaptívny tempomat</li>
+          <li>Lane Assist + Front Assist</li>
+          <li>Ambientné osvetlenie</li>
+          <li>Navigácia Discover Pro</li>
+          <li>Android Auto / Apple CarPlay</li>
+          <li>Virtuálny kokpit (ID. Cockpit)</li>
+          <li>R19 letné originál VW</li>
+          <li>R19 zimné Continental ContiSeal (6mm)</li>
+          <li>DC kábel CCS</li>
+          <li>2x kľúč</li>
+        </ul>
+
+        <h3>Financovanie</h3>
+        <p>Možnosť financovania cez lízing alebo úver. Odpočet DPH pre firmy a podnikateľov.</p>
+      </div>
+
+      <div class="modal-cta">
+        <a href="#kontakt" class="btn btn-primary" onclick="closeModal('id3')">Mám záujem!</a>
+        <a href="tel:+421904260438" class="btn btn-secondary">Zavolať</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OCTAVIA MODAL -->
+<div class="modal-overlay" id="modal-octavia">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('octavia')">X</button>
+    <div class="modal-gallery" data-gallery>
+      <img src="img/octavia/1.jpg" class="active" alt="Škoda Octavia Combi" />
+      <img src="img/octavia/2.jpg" alt="" /><img src="img/octavia/3.jpg" alt="" />
+      <img src="img/octavia/4.jpg" alt="" /><img src="img/octavia/5.jpg" alt="" />
+      <img src="img/octavia/6.jpg" alt="" /><img src="img/octavia/7.jpg" alt="" />
+      <img src="img/octavia/8.jpg" alt="" /><img src="img/octavia/9.jpg" alt="" />
+      <img src="img/octavia/10.jpg" alt="" /><img src="img/octavia/11.jpg" alt="" />
+      <img src="img/octavia/12.jpg" alt="" /><img src="img/octavia/13.jpg" alt="" />
+      <img src="img/octavia/14.jpg" alt="" /><img src="img/octavia/15.jpg" alt="" />
+      <img src="img/octavia/16.jpg" alt="" /><img src="img/octavia/17.jpg" alt="" />
+      <img src="img/octavia/18.jpg" alt="" /><img src="img/octavia/19.jpg" alt="" />
+      <img src="logo.png" class="watermark" alt="" />
+      <button class="img-nav img-prev" onclick="slideImg(this,-1)">&lt;</button>
+      <button class="img-nav img-next" onclick="slideImg(this,1)">&gt;</button>
+      <div class="img-counter">1 / 19</div>
+    </div>
+    <div class="modal-thumbs" id="thumbs-octavia"></div>
+    <div class="modal-body">
+      <span class="car-tag diesel">Diesel</span>
+      <div class="car-name">Škoda Octavia Combi III 1.6 TDI DSG</div>
+      <div class="car-price">6 500 €</div>
+
+      <div class="modal-specs-grid">
+        <div>Prvá evidencia: <span>27.01.2014</span></div>
+        <div>Nájazd: <span>290 000 km</span></div>
+        <div>Výkon: <span>77 kW / 105 k</span></div>
+        <div>Motor: <span>1.6 TDI (CLH)</span></div>
+        <div>Prevodovka: <span>7-st. DSG automat</span></div>
+        <div>Spotreba: <span>cca 5,5 l/100km</span></div>
+        <div>Farba: <span>Čierna</span></div>
+        <div>VIN: <span>TMBJG9NE7E0137615</span></div>
+        <div>Palivo: <span>Diesel</span></div>
+        <div>Stav: <span>Spoľahlivé, plne funkčné</span></div>
+      </div>
+
+      <div class="modal-description">
+        <h3>Popis</h3>
+        <p>Spoľahlivé a plne funkčné vozidlo s veľmi nízkou spotrebou cca 5,5l/100km. Pravidelne servisované, aktuálne po výmene oleja a filtrov. Nefajčiarsky interiér. Evidované na fyzickú osobu.</p>
+
+        <h3>Výbava</h3>
+        <ul>
+          <li>Bi-Xenónové svetlomety</li>
+          <li>KESSY bezkľúčový vstup a štart</li>
+          <li>Kožený interiér</li>
+          <li>Navigácia Columbus</li>
+          <li>Tempomat</li>
+          <li>Dažďový a svetelný senzor</li>
+          <li>Elektrické nastavenie sedadla vodiča</li>
+          <li>Automatické stmievanie zrkadiel</li>
+          <li>Vyhrievané čelné sklo</li>
+          <li>Vyhrievané spätné zrkadlá</li>
+          <li>R17 hliníkové disky originál Škoda</li>
+          <li>Parkovacie senzory</li>
+        </ul>
+      </div>
+
+      <div class="modal-cta">
+        <a href="#kontakt" class="btn btn-primary" onclick="closeModal('octavia')">Mám záujem!</a>
+        <a href="tel:+421904260438" class="btn btn-secondary">Zavolať</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE BUBBLE -->
+<div class="bubble-section">
+  <div class="speech-bubble">
+    <p>"Každé auto u nás je preskúšané,<br/><span>vyčistené a pripravené ZAPnúť</span> nového majiteľa!"</p>
+  </div>
+</div>
+
+<!-- REVIEWS -->
+<div class="reviews-section" id="recenzie">
+  <div class="reviews-inner">
+    <h2 class="section-title">Čo hovoria naši <span>ZAPnutí</span></h2>
+    <div class="section-line"></div>
+    <div class="reviews-grid">
+
+      <div class="review-card">
+        <div class="review-badge">OVERENÝ NÁKUP</div>
+        <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="review-text">"Kúpil som Tesla Model 3 a celý proces trval 2 dni. Od obhliadky po prevzatie. Žiadne skryté poplatky, žiadne prekvapenia. Len čistá radosť z jazdy."</p>
+        <div class="review-author">
+          <div class="review-avatar">PH</div>
+          <div>
+            <div class="review-name">Peter Horváth</div>
+            <div class="review-car">Tesla Model 3 · Bratislava</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-badge">OVERENÝ NÁKUP</div>
+        <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="review-text">"Hľadala som hybridné SUV pre rodinu a v ZAP! mi pomohli nájsť presne to čo som chcela. RAV4 je dokonalé rodinné auto. A ten lízing — parádny!"</p>
+        <div class="review-author">
+          <div class="review-avatar">MK</div>
+          <div>
+            <div class="review-name">Martina Kováčová</div>
+            <div class="review-car">Toyota RAV4 Hybrid · Trnava</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-badge">OVERENÝ NÁKUP</div>
+        <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="review-text">"Prvý krát som kupoval elektromobil a mal som milión otázok. Chalani v ZAP! mi všetko vysvetlili, ukázali nabíjanie a dokonca pomohli s wallboxom doma."</p>
+        <div class="review-author">
+          <div class="review-avatar">JB</div>
+          <div>
+            <div class="review-name">Juraj Bartoš</div>
+            <div class="review-car">VW ID.4 · Nitra</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-badge">OVERENÝ NÁKUP</div>
+        <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
+        <p class="review-text">"BMW 330e M Sport — presne čo som hľadal. Cena lepšia ako kdekoľvek inde na Slovensku. Jediné mínus: dal by som aj šiesty hviezdičku ale nejde to."</p>
+        <div class="review-author">
+          <div class="review-avatar">TS</div>
+          <div>
+            <div class="review-name">Tomáš Szabó</div>
+            <div class="review-car">BMW 330e xDrive · Žilina</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-badge">OVERENÝ NÁKUP</div>
+        <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="review-text">"Predala som staré auto a kúpila nové — všetko na jednom mieste. ZAP! vykúpili moje staré Punto za férovú cenu a zarátali do novej Cupry. Bomba servis!"</p>
+        <div class="review-author">
+          <div class="review-avatar">LN</div>
+          <div>
+            <div class="review-name">Lucia Nagyová</div>
+            <div class="review-car">Cupra Born · Banská Bystrica</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-badge">OVERENÝ NÁKUP</div>
+        <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="review-text">"IONIQ 5 nabíja z 10 na 80% za 18 minút — to musíte vidieť. ZAP! mi auto doviezol až domov a ešte mi doniesol darčekový balíček. Takto sa to robí!"</p>
+        <div class="review-author">
+          <div class="review-avatar">RD</div>
+          <div>
+            <div class="review-name">Roman Dubec</div>
+            <div class="review-car">Hyundai IONIQ 5 · Košice</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- WHY ZAP -->
+<section id="preco-zap">
+  <h2 class="section-title">Prečo <span>ZAP!</span>?</h2>
+  <div class="section-line"></div>
+  <div class="why-grid">
+    <div class="why-card">
+      <span class="why-icon">🔍</span>
+      <div class="why-title">100% preverené</div>
+      <p class="why-text">Každé vozidlo prechádza 150-bodovou kontrolou pred predajom.</p>
+    </div>
+    <div class="why-card">
+      <span class="why-icon">⚡</span>
+      <div class="why-title">Rýchly predaj</div>
+      <p class="why-text">Papiere, odovzdanie, nadšenie — všetko do 48 hodín.</p>
+    </div>
+    <div class="why-card">
+      <span class="why-icon">💳</span>
+      <div class="why-title">Flexibilné financovanie</div>
+      <p class="why-text">Lízing, úver, splátky. Navrhneme riešenie pre tvoj rozpočet.</p>
+    </div>
+    <div class="why-card">
+      <span class="why-icon">🛡</span>
+      <div class="why-title">Záruka ZAP!</div>
+      <p class="why-text">12-mesačná záruka na každé vozidlo. Bez výhovoriek.</p>
+    </div>
+    <div class="why-card">
+      <span class="why-icon">🔄</span>
+      <div class="why-title">Výkup starého auta</div>
+      <p class="why-text">Odkúpime tvoje staré auto a zarátame ho ako zálohu.</p>
+    </div>
+    <div class="why-card">
+      <span class="why-icon">🚚</span>
+      <div class="why-title">Dovoz až domov</div>
+      <p class="why-text">Dovezieme ti auto kamkoľvek na Slovensku. Zadarmo do 100 km.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PREVOZNE ZNACKY -->
+<div class="plates-section" id="prevozne-znacky">
+  <div class="plates-inner">
+    <h2 class="section-title" style="color:var(--cream)">Prevozné <span>značky (typ C)</span></h2>
+    <div class="section-line" style="background:var(--orange)"></div>
+    <p style="color:var(--cream);font-weight:700;font-size:1.05rem;max-width:750px;margin:0 auto 1.5rem;">Doviezli ste si auto a potrebujete absolvovať KO, STK, EK alebo zápis na úrade? Zapožičiame vám prevozné značky — jednoducho, rýchlo a s poistením v cene.</p>
+
+    <div class="plates-grid">
+
+      <div class="plate-card">
+        <span class="plate-icon">3️⃣</span>
+        <div class="plate-title">Minimálne 3 dni</div>
+        <div class="plate-price">30 €</div>
+        <p class="plate-text">Minimálna doba prenájmu. Dosť času na kontrolu originality, STK, EK aj zápis na okresnom úrade.</p>
+      </div>
+
+      <div class="plate-card">
+        <span class="plate-icon">📅</span>
+        <div class="plate-title">Každý ďalší deň</div>
+        <div class="plate-price">+10 € / deň</div>
+        <p class="plate-text">Potrebujete viac času? Žiadny problém. Napríklad 5 dní = 50 €, 7 dní = 70 €, 10 dní = 100 €.</p>
+      </div>
+
+      <div class="plate-card">
+        <span class="plate-icon">🛡️</span>
+        <div class="plate-title">V cene zahrnuté</div>
+        <div class="plate-price">PZP + známka</div>
+        <p class="plate-text">PZP poistenie a slovenská diaľničná známka na celú dobu prenájmu. Neplatíte nič navyše.</p>
+      </div>
+
+    </div>
+
+    <div class="plates-note">
+      <strong>Kedy prevozné značky potrebujete?</strong><br><br>
+      Po dovoze vozidla zo zahraničia musíte pred prihlásením do evidencie SR absolvovať niekoľko krokov. Naše značky vám umožnia legálne jazdiť po slovenských cestách počas celého procesu:<br><br>
+      &#10003; Kontrola originality (KO)<br>
+      &#10003; Technická kontrola (STK)<br>
+      &#10003; Emisná kontrola (EK)<br>
+      &#10003; Opravy vozidla (ak sú potrebné)<br>
+      &#10003; Prihlásenie na okresnom úrade<br><br>
+      <strong>Pre koho:</strong> Osobné aj úžitkové vozidlá<br>
+      <strong>Platnosť:</strong> Slovenská republika<br>
+      <strong>Záloha:</strong> 100 € (vratná pri vrátení značiek)<br>
+      <strong>Platba:</strong> Kartou alebo v hotovosti
+    </div>
+
+    <!-- RESERVATION SYSTEM -->
+    <div class="reservation-section" id="rezervacia-znaciek">
+      <h3>Rezervácia prevozných značiek</h3>
+      <p class="reservation-subtitle">Vyberte dátum prevzatia a vrátenia v kalendári</p>
+
+      <div id="resFormWrap">
+        <div class="calendar-wrapper">
+          <!-- Calendar -->
+          <div class="calendar-box">
+            <div class="calendar-header">
+              <button onclick="resCalPrev()" aria-label="Predchádzajúci mesiac">&#9664;</button>
+              <span class="calendar-month" id="resCalMonth"></span>
+              <button onclick="resCalNext()" aria-label="Nasledujúci mesiac">&#9654;</button>
+            </div>
+            <div class="calendar-grid" id="resCalGrid"></div>
+            <div class="res-legend">
+              <span><span class="dot" style="background:var(--orange)"></span> Vybraný</span>
+              <span><span class="dot" style="background:#fde0c2"></span> Rozsah</span>
+              <span><span class="dot" style="background:#ffcccc"></span> Obsadené</span>
+            </div>
+          </div>
+
+          <!-- Form -->
+          <div class="reservation-form-box">
+            <div class="res-summary" id="resSummary">
+              <div class="res-summary-row">
+                <span>Od:</span>
+                <span id="resSumFrom">—</span>
+              </div>
+              <div class="res-summary-row">
+                <span>Do:</span>
+                <span id="resSumTo">—</span>
+              </div>
+              <div class="res-summary-row">
+                <span>Počet dní:</span>
+                <span id="resSumDays">—</span>
+              </div>
+              <div class="res-summary-row">
+                <span>Prenájom:</span>
+                <span id="resSumPrice">—</span>
+              </div>
+              <div class="res-summary-row">
+                <span>Záloha (vratná):</span>
+                <span>100 €</span>
+              </div>
+              <div class="res-summary-row total">
+                <span>Celkom:</span>
+                <span id="resSumTotal">—</span>
+              </div>
+            </div>
+
+            <div class="res-form">
+              <label for="resName">Meno a priezvisko *</label>
+              <input type="text" id="resName" placeholder="Ján Novák" required>
+
+              <label for="resPhone">Telefón *</label>
+              <input type="tel" id="resPhone" placeholder="+421 9XX XXX XXX" required>
+
+              <label for="resEmail">E-mail</label>
+              <input type="email" id="resEmail" placeholder="jan@email.sk">
+
+              <label for="resVehicle">Vozidlo (značka, model)</label>
+              <input type="text" id="resVehicle" placeholder="napr. BMW 320d">
+
+              <label for="resPayment">Spôsob platby *</label>
+              <select id="resPayment">
+                <option value="hotovost">Hotovosť</option>
+                <option value="karta">Platobná karta</option>
+              </select>
+
+              <label for="resNote">Poznámka</label>
+              <textarea id="resNote" placeholder="Ďalšie informácie..."></textarea>
+
+              <button class="res-btn" id="resSubmitBtn" disabled onclick="submitReservation()">
+                Odoslať rezerváciu
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="res-success" id="resSuccess">
+        <h4>Rezervácia odoslaná!</h4>
+        <p>
+          Ďakujeme! Vaša rezervácia bola prijatá.<br>
+          Ozveme sa vám na potvrdenie do 24 hodín.<br><br>
+          <strong>Prevzatie:</strong> <span id="resConfFrom"></span><br>
+          <strong>Vrátenie:</strong> <span id="resConfTo"></span><br>
+          <strong>Cena:</strong> <span id="resConfPrice"></span> + 100 € záloha
+        </p>
+        <button class="res-back-btn" onclick="resetReservation()">Nová rezervácia</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MAP & LOCATION -->
+<div class="map-section" id="kde-nas-najdete">
+  <div style="max-width:1200px;margin:0 auto;">
+    <h2 class="section-title">Kde nás <span>nájdete</span></h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="map-inner">
+    <div class="map-embed">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2662.123456789!2d17.1077!3d48.1486!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDjCsDA4JzU1LjAiTiAxN8KwMDYnMjcuNyJF!5e0!3m2!1ssk!2ssk!4v1700000000000!5m2!1ssk!2ssk" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    <div class="location-info">
+      <h3>ZAP! Bratislava</h3>
+      <div class="info-row">
+        <div class="info-icon">📍</div>
+        <div>
+          <strong>Adresa</strong>
+          <p>Bajkalská 28<br>821 09 Bratislava – Ružinov</p>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">📞</div>
+        <div>
+          <strong>Telefón</strong>
+          <p>+421 904 260 438</p>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">📧</div>
+        <div>
+          <strong>E-mail</strong>
+          <p>info@zapautomobily.sk</p>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">🕐</div>
+        <div>
+          <strong>Otváracie hodiny</strong>
+          <table class="hours-table">
+            <tr><td>Pondelok – Piatok</td><td>9:00 – 18:00</td></tr>
+            <tr><td>Sobota</td><td>9:00 – 14:00</td></tr>
+            <tr><td>Nedeľa</td><td>Zatvorené</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">🅿</div>
+        <div>
+          <strong>Parkovanie</strong>
+          <p>Bezplatné parkovanie priamo pred showroomom (12 miest)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="contact-section" id="kontakt">
+  <h2 class="section-title" style="color:var(--cream)">Napíš <span>nám!</span></h2>
+  <div class="section-line" style="margin:0 auto 2rem;"></div>
+  <form class="contact-form" onsubmit="handleForm(event)">
+    <input type="text" placeholder="Tvoje meno" required />
+    <input type="email" placeholder="E-mail" required />
+    <input type="tel" placeholder="Telefón (nepovinné)" />
+    <select>
+      <option value="">— Zaujíma ma... —</option>
+      <option>Konkrétne vozidlo z ponuky</option>
+      <option>Elektrické vozidlo</option>
+      <option>Hybridné vozidlo</option>
+      <option>Plug-in hybrid</option>
+      <option>Benzínové vozidlo</option>
+      <option>Finančný lízing</option>
+      <option>Operatívny lízing</option>
+      <option>Výkup môjho auta</option>
+      <option>Testovacia jazda</option>
+      <option>Niečo iné</option>
+    </select>
+    <textarea placeholder="Správa – napíš čo hľadáš alebo sa opýtaj čokoľvek!"></textarea>
+    <button type="submit" class="btn btn-primary" style="font-size:1.4rem;padding:.7rem 2rem">
+      ODOSLAŤ ZAP!
+    </button>
+  </form>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-col">
+      <img src="logo.png" alt="ZAP!" />
+      <p>Autá ktoré vás zapnú.<br>Elektrické, hybridné, šialene dobré.</p>
+      <div class="social-links">
+        <a href="#" title="Facebook">FB</a>
+        <a href="#" title="Instagram">IG</a>
+        <a href="#" title="YouTube">YT</a>
+        <a href="#" title="TikTok">TT</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Navigácia</h4>
+      <a href="#ponuka">Ponuka vozidiel</a>
+      <a href="#recenzie">Recenzie zákazníkov</a>
+      <a href="#preco-zap">Prečo ZAP!</a>
+      <a href="#kde-nas-najdete">Kde nás nájdete</a>
+      <a href="#kontakt">Kontakt</a>
+    </div>
+    <div class="footer-col">
+      <h4>Kontakt</h4>
+      <p>Bajkalská 28<br>821 09 Bratislava</p>
+      <p>+421 904 260 438</p>
+      <p>info@zapautomobily.sk</p>
+      <p style="margin-top:.5rem;">IČO: 55 123 456<br>DIČ: 2121234567</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 ZAP! s.r.o. – Všetky práva vyhradené</p>
+  </div>
+</footer>
+
+<script>
+  // Hamburger menu
+  function toggleMenu() {
+    document.getElementById('mobileMenu').classList.toggle('open');
+    document.querySelector('.hamburger').classList.toggle('active');
+  }
+
+  // Image gallery slider (works for both card and modal)
+  function slideImg(btn, dir) {
+    const wrap = btn.closest('[data-gallery]');
+    const imgs = wrap.querySelectorAll(':scope > img:not(.watermark)');
+    const counter = wrap.querySelector('.img-counter');
+    let idx = [...imgs].findIndex(i => i.classList.contains('active'));
+    imgs[idx].classList.remove('active');
+    idx = (idx + dir + imgs.length) % imgs.length;
+    imgs[idx].classList.add('active');
+    counter.textContent = (idx + 1) + ' / ' + imgs.length;
+    // Update thumbs if present
+    const modal = wrap.closest('.modal');
+    if (modal) {
+      const thumbs = modal.querySelector('.modal-thumbs');
+      if (thumbs) {
+        thumbs.querySelectorAll('img').forEach((t,i) => t.classList.toggle('active', i === idx));
+        thumbs.children[idx]?.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+      }
+    }
+  }
+
+  function jumpToImg(wrap, idx) {
+    const imgs = wrap.querySelectorAll(':scope > img:not(.watermark)');
+    const counter = wrap.querySelector('.img-counter');
+    imgs.forEach(i => i.classList.remove('active'));
+    imgs[idx].classList.add('active');
+    counter.textContent = (idx + 1) + ' / ' + imgs.length;
+    const modal = wrap.closest('.modal');
+    if (modal) {
+      modal.querySelector('.modal-thumbs')?.querySelectorAll('img').forEach((t,i) => t.classList.toggle('active', i === idx));
+    }
+  }
+
+  // Modal open/close
+  function openModal(id) {
+    const overlay = document.getElementById('modal-' + id);
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    // Generate thumbs once
+    const thumbsWrap = overlay.querySelector('.modal-thumbs');
+    if (thumbsWrap && thumbsWrap.children.length === 0) {
+      const gallery = overlay.querySelector('.modal-gallery');
+      const imgs = gallery.querySelectorAll(':scope > img:not(.watermark)');
+      imgs.forEach((img, i) => {
+        const t = document.createElement('img');
+        t.src = img.src;
+        if (i === 0) t.classList.add('active');
+        t.onclick = () => jumpToImg(gallery, i);
+        thumbsWrap.appendChild(t);
+      });
+    }
+  }
+
+  function closeModal(id) {
+    document.getElementById('modal-' + id).classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Close modal on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(o => {
+    o.addEventListener('click', e => {
+      if (e.target === o) {
+        o.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.open').forEach(o => {
+        o.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    }
+  });
+
+  // Form submit
+  function handleForm(e) {
+    e.preventDefault();
+    alert('ZAP! Správa odoslaná! Ozveme sa do 24 hodín.');
+    e.target.reset();
+  }
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  });
+
+  // Animate stats on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animation = 'popIn .4s ease forwards';
+      }
+    });
+  }, { threshold: 0.2 });
+
+  document.querySelectorAll('.car-card, .why-card, .review-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    observer.observe(el);
+  });
+
+  // Add pop-in animation
+  const style = document.createElement('style');
+  style.textContent = `@keyframes popIn { to { opacity:1; transform:translateY(0); } }`;
+  document.head.appendChild(style);
+
+  // ── RESERVATION CALENDAR SYSTEM ──
+  (function() {
+    const MONTHS_SK = ['Január','Február','Marec','Apríl','Máj','Jún',
+                        'Júl','August','September','Október','November','December'];
+    const DAYS_SK = ['Po','Ut','St','Št','Pi','So','Ne'];
+    const PRICE_PER_DAY = 10;
+    const MIN_DAYS = 3;
+    const DEPOSIT = 100;
+
+    // Simulated booked dates (YYYY-MM-DD)
+    const bookedDates = new Set([
+      // Example booked dates — replace with real data or API
+      (() => { const d = new Date(); d.setDate(d.getDate()+5); return fmt(d); })(),
+      (() => { const d = new Date(); d.setDate(d.getDate()+6); return fmt(d); })(),
+      (() => { const d = new Date(); d.setDate(d.getDate()+7); return fmt(d); })(),
+      (() => { const d = new Date(); d.setDate(d.getDate()+14); return fmt(d); })(),
+      (() => { const d = new Date(); d.setDate(d.getDate()+15); return fmt(d); })(),
+    ]);
+
+    let curYear, curMonth;
+    let startDate = null, endDate = null;
+    let selecting = 'start'; // 'start' or 'end'
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    curYear = today.getFullYear();
+    curMonth = today.getMonth();
+
+    function fmt(d) {
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    }
+
+    function fmtDisplay(d) {
+      return d.getDate()+'. '+MONTHS_SK[d.getMonth()].toLowerCase().substring(0,3)+' '+d.getFullYear();
+    }
+
+    function isBooked(dateStr) { return bookedDates.has(dateStr); }
+
+    function rangeHasBooked(d1, d2) {
+      const cur = new Date(d1);
+      while (cur <= d2) {
+        if (isBooked(fmt(cur))) return true;
+        cur.setDate(cur.getDate()+1);
+      }
+      return false;
+    }
+
+    function daysBetween(d1, d2) {
+      return Math.round((d2 - d1) / (1000*60*60*24)) + 1;
+    }
+
+    function calcPrice(days) {
+      return days * PRICE_PER_DAY;
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById('resCalGrid');
+      const monthLabel = document.getElementById('resCalMonth');
+      monthLabel.textContent = MONTHS_SK[curMonth] + ' ' + curYear;
+      grid.innerHTML = '';
+
+      // Day labels (Mon-Sun)
+      DAYS_SK.forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'day-label';
+        el.textContent = d;
+        grid.appendChild(el);
+      });
+
+      const firstDay = new Date(curYear, curMonth, 1);
+      let startDay = firstDay.getDay(); // 0=Sun
+      startDay = startDay === 0 ? 6 : startDay - 1; // Convert to Mon=0
+
+      // Empty cells before month starts
+      for (let i = 0; i < startDay; i++) {
+        const el = document.createElement('div');
+        el.className = 'day empty';
+        grid.appendChild(el);
+      }
+
+      const daysInMonth = new Date(curYear, curMonth+1, 0).getDate();
+      for (let d = 1; d <= daysInMonth; d++) {
+        const el = document.createElement('div');
+        el.className = 'day';
+        el.textContent = d;
+
+        const date = new Date(curYear, curMonth, d);
+        const dateStr = fmt(date);
+
+        if (date < today) {
+          el.classList.add('disabled');
+        } else if (isBooked(dateStr)) {
+          el.classList.add('booked');
+          el.title = 'Obsadené';
+        } else {
+          // Check if in selected range
+          if (startDate && endDate) {
+            if (fmt(date) === fmt(startDate) || fmt(date) === fmt(endDate)) {
+              el.classList.add('selected');
+            } else if (date > startDate && date < endDate) {
+              el.classList.add('in-range');
+            }
+          } else if (startDate && fmt(date) === fmt(startDate)) {
+            el.classList.add('selected');
+          }
+
+          if (fmt(date) === fmt(today)) el.classList.add('today');
+
+          el.addEventListener('click', () => onDayClick(date));
+        }
+
+        grid.appendChild(el);
+      }
+    }
+
+    function onDayClick(date) {
+      if (selecting === 'start') {
+        startDate = date;
+        endDate = null;
+        selecting = 'end';
+      } else {
+        if (date < startDate) {
+          // Clicked before start — reset start
+          startDate = date;
+          endDate = null;
+          selecting = 'end';
+        } else if (fmt(date) === fmt(startDate)) {
+          // Same day — reset
+          startDate = null;
+          endDate = null;
+          selecting = 'start';
+        } else {
+          // Check if range has booked dates
+          if (rangeHasBooked(startDate, date)) {
+            alert('Vo vybranom rozsahu sú obsadené dni. Vyberte iný termín.');
+            return;
+          }
+          endDate = date;
+          selecting = 'start';
+        }
+      }
+      renderCalendar();
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const fromEl = document.getElementById('resSumFrom');
+      const toEl = document.getElementById('resSumTo');
+      const daysEl = document.getElementById('resSumDays');
+      const priceEl = document.getElementById('resSumPrice');
+      const totalEl = document.getElementById('resSumTotal');
+      const btn = document.getElementById('resSubmitBtn');
+
+      if (startDate && endDate) {
+        const days = daysBetween(startDate, endDate);
+        const price = calcPrice(days);
+
+        fromEl.textContent = fmtDisplay(startDate);
+        toEl.textContent = fmtDisplay(endDate);
+        daysEl.textContent = days + (days < MIN_DAYS ? ' (min. '+MIN_DAYS+')' : '');
+
+        if (days < MIN_DAYS) {
+          priceEl.textContent = MIN_DAYS * PRICE_PER_DAY + ' € (min. ' + MIN_DAYS + ' dni)';
+          totalEl.textContent = (MIN_DAYS * PRICE_PER_DAY + DEPOSIT) + ' €';
+          btn.disabled = true;
+        } else {
+          priceEl.textContent = price + ' €';
+          totalEl.textContent = (price + DEPOSIT) + ' €';
+          btn.disabled = false;
+        }
+      } else {
+        fromEl.textContent = startDate ? fmtDisplay(startDate) : '—';
+        toEl.textContent = '—';
+        daysEl.textContent = '—';
+        priceEl.textContent = '—';
+        totalEl.textContent = '—';
+        btn.disabled = true;
+      }
+    }
+
+    // Make nav functions global
+    window.resCalPrev = function() {
+      curMonth--;
+      if (curMonth < 0) { curMonth = 11; curYear--; }
+      renderCalendar();
+    };
+    window.resCalNext = function() {
+      curMonth++;
+      if (curMonth > 11) { curMonth = 0; curYear++; }
+      renderCalendar();
+    };
+
+    window.submitReservation = function() {
+      const name = document.getElementById('resName').value.trim();
+      const phone = document.getElementById('resPhone').value.trim();
+      if (!name || !phone) {
+        alert('Vyplňte meno a telefónne číslo.');
+        return;
+      }
+      if (!startDate || !endDate) return;
+
+      const days = daysBetween(startDate, endDate);
+      const price = Math.max(days, MIN_DAYS) * PRICE_PER_DAY;
+
+      // Show confirmation
+      document.getElementById('resConfFrom').textContent = fmtDisplay(startDate);
+      document.getElementById('resConfTo').textContent = fmtDisplay(endDate);
+      document.getElementById('resConfPrice').textContent = price + ' €';
+
+      document.getElementById('resFormWrap').style.display = 'none';
+      document.getElementById('resSuccess').classList.add('show');
+
+      // Mark dates as booked
+      const cur = new Date(startDate);
+      while (cur <= endDate) {
+        bookedDates.add(fmt(cur));
+        cur.setDate(cur.getDate()+1);
+      }
+    };
+
+    window.resetReservation = function() {
+      startDate = null;
+      endDate = null;
+      selecting = 'start';
+      document.getElementById('resFormWrap').style.display = '';
+      document.getElementById('resSuccess').classList.remove('show');
+      document.getElementById('resName').value = '';
+      document.getElementById('resPhone').value = '';
+      document.getElementById('resEmail').value = '';
+      document.getElementById('resVehicle').value = '';
+      document.getElementById('resNote').value = '';
+      renderCalendar();
+      updateSummary();
+    };
+
+    // Init
+    renderCalendar();
+    updateSummary();
+  })();
+</script>
+
+</body>
+</html>
